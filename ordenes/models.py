@@ -86,13 +86,13 @@ class Orden(models.Model):
         verbose_name_plural = 'Órdenes'
 
     def save(self, *args, **kwargs):
-        # Genera el consecutivo OR-001, OR-002... la primera vez que se guarda
+        # Generar número consecutivo solamente al crear la orden
         if not self.numero_orden:
             ultima = Orden.objects.order_by('-id').first()
             n = (int(ultima.numero_orden.split('-')[1]) + 1) if ultima else 1
             self.numero_orden = f"OR-{n:03d}"
-            self.total = self.producto.precio * self.cantidad
-        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.numero_orden} - {self.cliente.nombre}"
+        # Calcular el total cada vez que se guarda la orden
+        self.total = self.producto.precio * self.cantidad
+
+        super().save(*args, **kwargs)      
